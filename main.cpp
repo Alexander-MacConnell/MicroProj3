@@ -8,12 +8,24 @@
 #define DIRA 3
 #define DIRB 4
 
+#define SAMPLES 64             //Must be a power of 2
+#define SAMPLING_FREQUENCY 1000 //Max freq is half this
+
 RTC_DS1307 rtc;
 int i;
+unsigned int sampling_period_us;
+unsigned long microseconds;
+
+double vReal[SAMPLES];
+double vImag[SAMPLES];
+
+arduinoFFT FFT = arduinoFFT();
  
 void setup() {
 
   Serial.begin(9600);
+
+  sampling_period_us = round(1000000*(1.0/SAMPLING_FREQUENCY));
 
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -23,6 +35,7 @@ void setup() {
   pinMode(ENABLE, OUTPUT);
   pinMode(DIRA, OUTPUT);
   pinMode(DIRB, OUTPUT);
+  pinMode(PIN_A0, INPUT);
 
   if (! rtc.isrunning()) {
     Serial.println("RTC is NOT running!");
@@ -35,6 +48,33 @@ void setup() {
 void loop() {
 
   DateTime now = rtc.now();
+
+  microseconds = micros();
+  for(int i=0; i<SAMPLES; i++){
+
+    vReal[i] = analogRead(A0);
+    vImag[i] = 0;
+
+    while(micros() - microseconds < sampling_period_us){
+      //empty loop
+    }
+
+    microseconds += sampling_period_us;
+
+  }
+
+  /*Perform FFT*/
+  FFT.Windowing(vReal, SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+  FFT.Compute(vReal, vImag, SAMPLES, FFT_FORWARD);
+  FFT.ComplexToMagnitude(vReal, vImag, SAMPLES);
+  double peak = FFT.MajorPeak(vReal, SAMPLES, SAMPLING_FREQUENCY);
+
+  /*Print out frequency*/
+  Serial.println(peak);
+  
+  delay(1000);
+
+  /*
 
   Serial.println("PWM full then slow");
 
@@ -67,6 +107,8 @@ void loop() {
   Serial.print(now.minute(), DEC);
   Serial.print(':');
   Serial.print(now.second(), DEC);
-  Serial.println();
+  Serial.println(); 
+  
+  */
   
 }
