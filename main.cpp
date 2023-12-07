@@ -71,7 +71,7 @@ void setup() {
     while (1);
   }
 
-  delay(2000);
+  delay(3000);
 
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
@@ -150,15 +150,16 @@ void loop() {
 
   if(!((peak >= A4_lower && peak <= A4_upper) || (peak >= C4_lower && peak <= C4_upper))){
     peak = 0;
+    x = 0;
   }
 
-  /*Print out frequency*/
-  //Serial.println(peak);
+  //Print out frequency
+  Serial.println(peak);
 
   // Check if frequency is within a range and changes motor speed accordingly
   if(peak >= A4_lower && peak <= A4_upper){
 
-    if((x > 5) && (peak < pervious_peak + 10) && (peak > pervious_peak - 10) && (motor_speed > 135)){
+    if((x > 4) && (peak < pervious_peak + 10) && (peak > pervious_peak - 10) && (motor_speed > 135)){
       motor_speed = motor_speed - 60;
       analogWrite(ENABLE, motor_speed);
 
@@ -172,7 +173,7 @@ void loop() {
       x = 0;
     }
 
-    if((x > 5) && (peak < pervious_peak + 10) && (peak > pervious_peak - 10) && (motor_speed == 135)){
+    if((x > 4) && (peak < pervious_peak + 10) && (peak > pervious_peak - 10) && (motor_speed == 135)){
       motor_speed = 0;
       analogWrite(ENABLE, motor_speed);
       display_speed = "FS=0";
@@ -185,7 +186,7 @@ void loop() {
 
   if(peak >= C4_lower && peak <= C4_upper && motor_speed < 255){
 
-    if((x > 5) && (peak < pervious_peak + 10) && (peak > pervious_peak - 10) && (motor_speed >= 135)){
+    if((x > 4) && (peak < pervious_peak + 10) && (peak > pervious_peak - 10) && (motor_speed >= 135)){
       motor_speed = motor_speed + 60;
       analogWrite(ENABLE, motor_speed);
 
@@ -199,7 +200,7 @@ void loop() {
       x = 0;
     }
 
-    if((x > 5) && (peak < pervious_peak + 10) && (peak > pervious_peak - 10) && (motor_speed == 0)){
+    if((x > 4) && (peak < pervious_peak + 10) && (peak > pervious_peak - 10) && (motor_speed == 0)){
       motor_speed = 135;
       analogWrite(ENABLE, motor_speed);
       display_speed = "FS=1/2";
