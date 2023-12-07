@@ -71,6 +71,8 @@ void setup() {
     while (1);
   }
 
+  delay(2000);
+
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
   pinMode(ENABLE, OUTPUT);
